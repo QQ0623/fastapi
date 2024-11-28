@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Interger, String, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session 
 
 #Initialize FastAPI
 app = FastAPI()
 
 
 # Database
-DATABASE_URL = "squlite:///./todos.db"
+DATABASE_URL = "sqlite:///./todos.db"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread":False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -17,9 +17,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Define Model
 class Todo(Base):
     __tablename__ = "todos"
-    id = Column(Interger, primary_key=True, index = True)
+    id = Column(Integer, primary_key=True, index = True)
     title = Column(String, nullable = False)
-    description = Column(string, nullable = True)
+    description = Column(String, nullable = True)
     completed = Column(Boolean, default = False)
 
 # Initialize Database's Table
@@ -27,7 +27,7 @@ Base.metadata.create_all(bind=engine)
 
 '''
 VAILDATION
-'''
+''' 
 # Pydantic
 class TodoBase(BaseModel):
     title: str
@@ -41,7 +41,7 @@ class TodoResponse(TodoBase):
     id: int
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 #Database Injection
 def get_db():
     db = SessionLocal()
@@ -55,7 +55,7 @@ ROUTING
 '''
 
 @app.post("/todos", response_model = TodoResponse)
-def create_todo(todo:TodoCreate, db:Session = Depends(get_db())):
+def create_todo(todo:TodoCreate, db:Session = Depends(get_db)):
     db_todo = Todo(**todo.dict())
     db.add(db_todo)
     db.commit()
@@ -63,18 +63,18 @@ def create_todo(todo:TodoCreate, db:Session = Depends(get_db())):
     return db_todo
 
 @app.get("/todos", response_model=list[TodoResponse])
-def read_todos(db: Session = Depends(get_db())):
+def read_todos(db: Session = Depends(get_db)):
     return db.query(Todo).all()
 
 @app.get("/todo/{todo_id}", response_model=TodoResponse)
-def read_todo(todo_id:int, db: Session = Depends(get_db())):
+def read_todo(todo_id:int, db: Session = Depends(get_db)):
     db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
     if not db_todo:
         raise HTTPException(status_code=404, details="Todo not found")
     return db_todo 
 
 @app.put("/todo/{todo_id}", response_model=TodoResponse)
-def update_todo(todo_id: int, todo: TodoCreate, db: Session = Depends(get_db())):
+def update_todo(todo_id: int, todo: TodoCreate, db: Session = Depends(get_db)):
     db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
     if not db_todo:
         raise HTTPException(status_code=404, details="Todo not found")
@@ -85,8 +85,8 @@ def update_todo(todo_id: int, todo: TodoCreate, db: Session = Depends(get_db()))
     return db_todo
 
 @app.delete("/todo/{todo}")
-def delete_todo(todo_id: int, db:Session = Depends(get_db())):
-    db_todo = db.query(Todo).filter(Todo_id == todo_id).first()
+def delete_todo(todo_id: int, db:Session = Depends(get_db)):
+    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
     if not db_todo:
         raise HTTPException(status_code=404, details="Todo not found")
     db.delete(db_todo)
