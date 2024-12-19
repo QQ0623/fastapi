@@ -5,10 +5,9 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from app.main import Base
+from app.database import Base
+from app.models import Todo
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
