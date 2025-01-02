@@ -7,6 +7,7 @@ class Todo(Base):
     title = Column(String, nullable = False)
     description = Column(String, nullable = True)
     completed = Column(Boolean, default = False)
+    priority = Column(Integer, default=1)
 
 class User(Base):
     __tablename__ = "users"
