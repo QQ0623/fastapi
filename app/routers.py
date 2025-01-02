@@ -3,7 +3,7 @@ from fastapi import APIRouter,Depends, HTTPException
 from .schemas import TodoResponse, TodoCreate
 from .models import Todo
 from .database import SessionLocal
-
+from .auth import git_current_user
 router = APIRouter()
 '''
 ROUTING
@@ -18,7 +18,11 @@ def get_db():
         db.close()
 
 @router.post("/todos", response_model = TodoResponse)
-def create_todo(todo:TodoCreate, db:Session = Depends(get_db)):
+def create_todo(
+    todo:TodoCreate, 
+    db:Session = Depends(get_db),
+    current_user : dict = Depends(git_current_user)
+    ):
     db_todo = Todo(**todo.dict())
     db.add(db_todo)
     db.commit()
